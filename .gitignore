@@ -1,0 +1,15 @@
+database/*
+packages/*
+TestResults/*
+*/.bin/*
+*/bin/*
+*/obj/*
+*.mdf
+*.user
+*/App_Data/*
+*.suo
+.vs/SomeProducts/*
+.vs/config/*
+*.dacpac
+*dbmdl
+*/Log

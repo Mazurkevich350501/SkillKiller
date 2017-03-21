@@ -1,0 +1,159 @@
+﻿@using R = Resources.LocalResource;
+@model  SomeProducts.PresentationServices.Models.Create.ProductViewModel
+
+@{
+    var isEdit = Model.Product.Id != 0;
+    var title = isEdit ? "Edit" : "Create";
+    ViewBag.Title = title;
+}
+
+<h2>@(isEdit ? R.Editing : R.Creating)</h2>
+
+<form method="post" action=@Url.Action(isEdit ? "Edit" : "Create", "Product") enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Product.Id)
+    @Html.HiddenFor(m => m.Product.Version)
+    @Html.HiddenFor(m => m.Product.Image)
+    @Html.HiddenFor(m => m.Product.ImageType)
+    <div class="row">
+        <div class="col-sm-8">
+            @Html.ValidationMessageFor(m => m.Product.Name, "", new { id = (@Html.IdFor(m => m.Product.Name) + "_Validation") })
+            <div class="row">
+                <h4 class="col-xs-3">@Html.LabelFor(m => m.Product.Name)*</h4>
+                @Html.TextBoxFor(m => m.Product.Name, new { @class = "form-control col-xs-6" })
+            </div>
+            @Html.ValidationMessageFor(m => m.Product.Description, "", new { id = (@Html.IdFor(m => m.Product.Description) + "_Validation") })
+            <div class="row description-text-area">
+                <h4 class="col-xs-3">@Html.LabelFor(m => m.Product.Description)</h4>
+                @Html.TextAreaFor(m => m.Product.Description, new { @class = "form-control col-xs-6" })
+            </div>
+            @Html.ValidationMessageFor(m => m.Product.BrandId, "", new { id = (@Html.IdFor(m => m.Product.BrandId) + "_Validation") })
+            <div class="row">
+                <h4 class="col-xs-3">@Html.LabelFor(m => m.Product.BrandId)*</h4>
+                @Html.DropDownListFor(m => m.Product.BrandId, new SelectList(Model.Brands, "Key", "Value", Model.Product.BrandId), new { @class = "btn col-xs-5 btn-default dropdown-toggle" })
+                <button type="button" id="brandEditBtn" class="btn btn-left-margin btn-info col-xs-1 glyphicon glyphicon-cog" data-toggle="modal" data-target="#BrandModal"></button>
+            </div>
+            @Html.ValidationMessageFor(m => m.Product.Color, "", new { id = (@Html.IdFor(m => m.Product.Color) + "_Validation") })
+            <div class="row">
+                <h4 class="col-xs-3">@Html.LabelFor(m => m.Product.Color)</h4>
+                @Html.DropDownListFor(m => m.Product.Color, new SelectList(Model.Colors, "Key", "Value", Model.Product.Color))
+            </div>
+            @Html.ValidationMessageFor(m => m.Product.Quantity, "", new { id = (@Html.IdFor(m => m.Product.Quantity) + "_Validation") })
+            <div class="row">
+                <h4 class="col-xs-3">@Html.LabelFor(m => m.Product.Quantity)</h4>
+                @Html.TextBoxFor(m => m.Product.Quantity, new { type = "number", @class = "form-control col-xs-6" })
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <img class="image-box" id="image" src="~/Resources/emptyImage.jpg" />
+            <div>
+                <span id="imageMessageId" class="field-validation-error"></span>
+                <input type="file" name="file" id="file" accept="image/*" />
+            </div>
+        </div>
+    </div>
+    <div>
+        <input type="submit" class="btn btn-success" value=@(isEdit ? @R.Save : @R.Create) />
+        <div id="delete-btn" class="btn btn-warning" data-toggle="modal" data-target="#RemovingModal">@R.Delete</div>
+        <a class="btn btn-info" href="@Url.Action("ItemAudit", "Audit", new {id = Model.Product.Id, entity = nameof(Model.Product)})">@R.Audit</a>
+    </div>
+</form>
+
+<div id="BrandModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" id="modal_dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Brands</h4>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <p class="field-validation-error" id="newBrandValidation"></p>
+                        </div>
+                        <div class="col-xs-10">
+                            <input class="new-brand-input form-control " id="newBrandName" />
+                        </div>
+                        <button class="btn btn-success glyphicon glyphicon-plus-sign" id="addBtnId"></button>
+                    </div>
+                </div>
+                <div id="modal-content"></div>
+            </div>
+            <div class="save-btn-conteiner modal-footer">
+                <button class="btn btn-success" id="saveBtnId">@R.Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="RemovingModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">@R.DeleteProductQuestion</h4>
+            </div>
+            <form method="post" action=@Url.Action("Delete", "Product") enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                @Html.Hidden("productId", Model.Product.Id)
+                @Html.Hidden("redirectUrl", @Url.Action("Show", "ProductTable"))
+                <div class="modal-body-central">
+                    <input type="submit" class="btn btn-danger" id="removeBtnId" value="@R.Delete"/>
+                    <button class="btn btn-default" id="cancelDeleteBtnId">@R.Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section scripts
+{
+    <script id="brandsTemplate" type="text/x-jQuery-tmpl">
+        <p class="brand-validation-error" id="brandValidation-${id}"></p>
+        <div class="row" id="row-${id}">
+            <div class="col-xs-10">
+                <h4><input class="brand-edit-input" type="text" data-id="${id}" value="${name}"/></h4>
+            </div>
+            <button class="btn btn-warning glyphicon glyphicon-minus-sign" data-id="${id}" data-selector="removeBtn"></button>
+        </div>
+    </script>
+
+    <script>
+        $(function() {
+            var params = { id: {}, url: {}, error: {} };
+            params.id.colorpickerId = '@Html.IdFor(m => m.Product.Color)';
+            params.id.brandDropdownId = '@Html.IdFor(m => m.Product.BrandId)';
+            params.id.imageDataId = '@Html.IdFor(m => m.Product.Image)';
+            params.id.imageTypeId = '@Html.IdFor(m => m.Product.ImageType)';
+            params.id.quantityId = '@Html.IdFor(m => m.Product.Quantity)';
+            params.id.productNameId = '@Html.IdFor(m => m.Product.Name)';
+            params.id.descriptionId = '@Html.IdFor(m => m.Product.Description)';
+            params.id.productId = '@Html.IdFor(m => m.Product.Id)';
+            params.url.getBrandsListUrl = '@Url.Action("GetBrandsList", "Product")';
+            params.url.isBrandUsingUrl = '@Url.Action("IsBrandUsing", "Product")';
+            params.url.saveBrandsChangesUrl = '@Url.Action("SaveBrandsChanges", "Product")';
+
+            params.error.IllegalCharsError = '@R.IllegalCharsError';
+            params.error.EmptyBrandNameError = '@R.EmptyBrandNameError';
+            params.error.BrandNameExistError = '@R.BrandNameExistError';
+
+            var productNamespace = window.Utils.getNamespace("Product");
+            var imageNamespace = window.Utils.getNamespace("Image");
+            var modalWindowNamespace = window.Utils.getNamespace("ModalWindow");
+
+            productNamespace.initPage(params);
+            imageNamespace.initImage(params);
+            modalWindowNamespace.initModalWindow(params);
+
+        });
+
+    </script>
+    <script src="http://ajax.aspnetcdn.com/ajax/jquery.templates/beta1/jquery.tmpl.js"></script>
+    @Scripts.Render("~/Product/Create/Scripts")
+}
+
+@section stylesheets
+{
+    @Styles.Render("~/Product/Create/css")
+}

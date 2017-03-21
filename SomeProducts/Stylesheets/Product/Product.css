@@ -1,0 +1,38 @@
+﻿.description-text-area {
+    padding-bottom: 10px;
+}
+
+.save-btn-conteiner {
+    text-align: left;
+}
+
+.image-box {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.btn-left-margin {
+    margin-left: 10px;
+    width: 40px;
+}
+
+.brand-validation-error {
+    margin: 0;
+}
+
+.new-brand-input {
+    max-width: none;
+    width: 95%;
+}
+
+.modal-body-central {
+    text-align: center;
+    padding: 20px;
+}
+
+.brand-edit-input {
+    border: 0;
+    outline: none;
+    max-width: none;
+    width: 97%;
+}

@@ -1,0 +1,51 @@
+﻿
+@model SomeProducts.PresentationServices.Models.Account.LogInUserModel
+@using R = Resources.LocalResource;
+@{
+    ViewBag.Title = R.LogIn;
+    string returnUrl = ViewBag.ReturnUrl ?? Url.Action("Show", "ProductTable");
+}
+
+<h2>@R.LogIn</h2>
+
+<form method="post" action=@Url.Action("LogIn", "Account") enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    @Html.Hidden("returnUrl", returnUrl)
+    @Html.ValidationMessage("Error")
+    <div>
+        @Html.LabelFor(m => m.Name)
+        <div class="input-div">
+            @Html.ValidationMessageFor(m => m.Name)
+            @Html.TextBoxFor(m => m.Name, new {@class = "form-control"})
+        </div>
+        @Html.LabelFor(m => m.Password)
+        <div class="input-div">
+            @Html.ValidationMessageFor(m => m.Password)
+            @Html.TextBoxFor(m => m.Password, new {@class = "form-control", type = "password"})
+        </div>
+    </div>
+    <div class="btn-div">
+        <input class="btn btn-info" type="submit" value="@R.SignIn"/>
+        <a class="btn btn-default" href="@Url.Action("Register", "Account", new {returnUrl})">@R.Register</a>
+    </div>
+</form>
+
+
+@section stylesheets
+{
+    @Styles.Render("~/Account/Auth/css")
+}
+
+@section scripts
+{
+    <script>
+        $(function () {
+            var params = {
+                IllegalCharsError: '@R.IllegalCharsError'
+            };
+            var validationNamespace = window.Utils.getNamespace("AccountValidation");
+            validationNamespace.init(params);
+        });
+    </script>
+    @Scripts.Render("~/Account/Auth/Scripts")
+}
